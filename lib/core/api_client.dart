@@ -51,6 +51,28 @@ class ApiClient {
     }
   }
 
+  // Streaming para tokens (simulado)
+  Stream<String> sendMessageStream(ChatRequest request) async* {
+    try {
+      final response = await _dio.post('/chat', data: request.toJson());
+      final chatResponse = ChatResponse.fromJson(response.data);
+      final fullAnswer = chatResponse.answer;
+      
+      // Simular streaming dividiendo la respuesta en palabras
+      final words = fullAnswer.split(' ');
+      for (int i = 0; i < words.length; i++) {
+        await Future.delayed(const Duration(milliseconds: 50)); // Simular velocidad de escritura
+        if (i == 0) {
+          yield words[i];
+        } else {
+          yield ' ${words[i]}';
+        }
+      }
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<bool> checkHealth() async {
     try {
       final response = await _dio.get('/health');

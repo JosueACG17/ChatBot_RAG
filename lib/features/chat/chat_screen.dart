@@ -4,6 +4,7 @@ import '../../core/models.dart';
 import '../../widgets/message_bubble.dart';
 import '../../widgets/input_bar.dart';
 import '../../widgets/typing_indicator.dart';
+import '../../providers/theme_provider.dart';
 import 'chat_controller.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -60,12 +61,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       appBar: AppBar(
         title: const Row(
           children: [
-            Icon(Icons.smart_toy),
             SizedBox(width: 8),
             Text('Chatbot RAG'),
           ],
         ),
         actions: [
+          // Botón para cambiar tema
+          IconButton(
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            onPressed: () {
+              ref.read(themeProvider.notifier).toggleTheme();
+            },
+            tooltip: 'Cambiar tema',
+          ),
           PopupMenuButton<String>(
             onSelected: (value) async {
               switch (value) {

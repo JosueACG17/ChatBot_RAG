@@ -1,6 +1,6 @@
 // Modelos para el chatbot RAG
 class Message {
-  final String role; // 'user' o 'assistant'
+  final String role; 
   final String content;
   final DateTime timestamp;
 
@@ -9,6 +9,21 @@ class Message {
     required this.content,
     required this.timestamp,
   });
+
+  // Para persistencia
+  Map<String, dynamic> toJson() => {
+        'role': role,
+        'content': content,
+        'timestamp': timestamp.millisecondsSinceEpoch,
+      };
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      role: json['role'] ?? '',
+      content: json['content'] ?? '',
+      timestamp: DateTime.fromMillisecondsSinceEpoch(json['timestamp'] ?? 0),
+    );
+  }
 }
 
 class ChatRequest {

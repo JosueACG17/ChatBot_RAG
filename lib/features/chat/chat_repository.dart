@@ -22,6 +22,22 @@ class ChatRepository {
     return response.answer;
   }
 
+  // Método para streaming
+  Stream<String> askStream(String message, List<Message> history) {
+    // Convertir el historial al formato de la API
+    final historyForApi = history.map((msg) => {
+      'role': msg.role,
+      'content': msg.content,
+    }).toList();
+
+    final request = ChatRequest(
+      message: message,
+      history: historyForApi,
+    );
+
+    return _apiClient.sendMessageStream(request);
+  }
+
   Future<bool> health() async {
     return await _apiClient.checkHealth();
   }
