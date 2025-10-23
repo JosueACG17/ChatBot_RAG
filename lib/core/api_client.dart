@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'models.dart';
 
 class ApiClient {
@@ -10,7 +10,7 @@ class ApiClient {
     final baseUrl = _getBaseUrl();
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 30),
+      connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 60),
       headers: {
         'Content-Type': 'application/json',
@@ -28,18 +28,11 @@ class ApiClient {
   }
 
   String _getBaseUrl() {
-    if (kIsWeb) {
-      return 'http://localhost:8000';
-    } else if (Platform.isAndroid) {
-      // Para emulador Android
-      return 'http://10.0.2.2:8000';
-    } else if (Platform.isIOS) {
-      // Para simulador iOS
-      return 'http://localhost:8000';
-    } else {
-      // Para dispositivos físicos - cambiar por la IP real
-      return 'http://192.168.1.100:8000';
+    final envBaseUrl = dotenv.env['BASE_URL'];
+    if (envBaseUrl != null && envBaseUrl.isNotEmpty) {
+      return envBaseUrl;
     }
+    throw Exception('BASE_URL no está configurada en el archivo .env');
   }
 
   Future<ChatResponse> sendMessage(ChatRequest request) async {
@@ -61,7 +54,7 @@ class ApiClient {
       // Simular streaming dividiendo la respuesta en palabras
       final words = fullAnswer.split(' ');
       for (int i = 0; i < words.length; i++) {
-        await Future.delayed(const Duration(milliseconds: 50)); // Simular velocidad de escritura
+        await Future.delayed(const Duration(milliseconds: 50)); 
         if (i == 0) {
           yield words[i];
         } else {
@@ -85,11 +78,11 @@ class ApiClient {
   String _handleError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Tiempo de conexión agotado';
+        return 'Ha ocurrido un error en el servidor';
       case DioExceptionType.sendTimeout:
-        return 'Tiempo de envío agotado';
+        return 'Ha ocurrido un error en el servidor';
       case DioExceptionType.receiveTimeout:
-        return 'Tiempo de respuesta agotado';
+        return 'Ha ocurrido un error en el servidor';
       case DioExceptionType.connectionError:
         return 'Error de conexión. Verifica que el servidor esté funcionando';
       case DioExceptionType.badResponse:
